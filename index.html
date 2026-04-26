@@ -131,9 +131,9 @@ const qs = [
     ko: "Incorrecte! Prefereixo entretindre'm a través de llibres o pel·lícules. Ànima d'humanista!"
   },
   {
-    q: "Al tauler d'escacs, la meva estratègia...",
+    q: "Al tauler d'escacs, la meva estratègia és...",
     hint: "Sempre mirar endavant i pensar en el futur.",
-    opts: ["Improvisar i deixar que el joc avanci", "Pensar tres moviments per endavant", "Avorrir-me abans del escac i mat", "Jugo esperant tenir sort"],
+    opts: ["Improvisar i deixar que el joc avanci", "Pensar tres moviments per endavant", "Avorrir-me abans del escac i mat", "Jugar esperant tenir sort"],
     c: 1,
     ok: "Sí! La mentalitat d'avançar sempre encaixa perfectament amb l'estratègia.",
     ko: "No! En aquest joc, pensar abans d'actuar és clau."
@@ -143,8 +143,8 @@ const qs = [
     hint: "Combina disciplina mental i física, i té un fort component de respecte i superació personal.",
     opts: ["Futbol sala els diumenges", "Natació competitiva", "Arts marcials", "Golf relaxat"],
     c: 2,
-    ok: "Correcte! Practico arts marcials cos i ment en concentració.",
-    ko: "Ups! Practico arts marcials: respecte i mantenir el cos actiu."
+    ok: "Correcte! Practico jiu-jitsu per mantenir-me actiu.",
+    ko: "Ups! Practico arts marcials per mantenir el cos actiu."
   },
   {
     q: "Quin seria el meu pla ideal per sopar?",
@@ -152,7 +152,7 @@ const qs = [
     opts: ["Un kebab ràpid de camí a casa", "Cuina de fusió amb bona decoració", "Un restaurant amb bon menjar i millor beguda", "Pizza congelada veient la tele"],
     c: 2,
     ok: "Exacte! Encara que un sopar a casa sempre es queda a prop.",
-    ko: "Casi! M'encanta gaudir d'un sopar especial amb bon menjar i beguda."
+    ko: "Quasi! M'encanta gaudir d'un sopar especial amb bon menjar i beguda."
   },
   {
     q: "Quina filosofia de vida segueixo?",
@@ -167,7 +167,7 @@ const qs = [
     hint: "No busco la fama ni la riquesa exagerada, vull un benestar profund i durador.",
     opts: ["Fama internacional i vida agitada", "Una vida tranquil·la i completa", "Ser CEO d'una gran empresa", "Viatjar sense rumb fix "],
     c: 1,
-    ok: "El meu somni! És una vida tranquil·la i completa, amb bona companyia.",
+    ok: "El meu somni és una vida tranquil·la i completa, amb bona companyia.",
     ko: "El meu somni és una vida tranquil·la i completa. Simple i lo més còmode possible."
   }
 ];
@@ -202,7 +202,7 @@ function showStart(area) {
       <div class="result-hero">
         <h1 style="margin-bottom:10px;color:#26215C">Quant conèixes al Pol?</h1>
         <p class="result-sub">
-Aquest Quiz és una manera creativa que he pensat per presentar-me a mi mateix, Pol Tost Bellido estudiant del Grau en Psicologia, dins de la primera pràctica de l’assignatura d’Intel·ligència i Creativitat. En lloc de fer una presentació tradicional, he volgut crear una experiència interactiva en forma de quiz.
+Aquest quiz és una manera creativa que he pensat per presentar-me a mi mateix, Pol Tost Bellido estudiant del Grau en Psicologia, dins de la primera pràctica de l’assignatura d’Intel·ligència i Creativitat. En lloc de fer una presentació tradicional, he volgut crear una experiència interactiva en forma de quiz.
 
 La idea és que, a través de preguntes, es pugui descobrir qui sóc, què m’interessa i com penso, de manera dinàmica. Crec que la creativitat també està en la forma de comunicar, no només en el contingut.
         </p>
@@ -303,7 +303,7 @@ function getResult(s) {
   if (s === qs.length) return { t:"Ets el major fan d'en Pol!", m:"Puntuació perfecta. O ets en Pol mateix, o tens molt en comú. Impressionant." };
   if (s >= 5) return { t:"Gran coneixedor d'en Pol", m:"Saps bastant sobre ell." };
   if (s >= 3) return { t:"Alguna cosa et sona d'en Pol", m:"Tens algunes pistes, però encara hi ha misteri. Ara ja el coneixes una mica millor!" };
-  return { t:"El Pol és encara un misteri per a tu", m:"No passa res! Espero que aquest quiz t'hagi ajudat a conèixe'm millor." };
+  return { t:"El Pol és encara un misteri per a tu", m:"No passa res! Espero que aquest quiz t'hagi ajudat a conèixer-me millor." };
 }
 
 function showResult(area) {
@@ -322,7 +322,7 @@ Com a tancament, aquest projecte es pot entendre com una presentació personal e
 
 El guió del test es construeix a partir de set preguntes, comença amb informació més bàsica (què estudio), i avança cap a aspectes més personals com els interessos, els hàbits, la manera de pensar i la visió de futur. Cada pregunta inclou quatre opcions de resposta, una pista que orienta sense revelar la solució i un feedback final. 
 
-Tant si la resposta és correcta com incorrecta. D’aquesta manera, el test no només avalua, sinó que també comunica informació de forma progressiva.
+D’aquesta manera, el test no només avalua, sinó que també comunica informació de forma progressiva.
 
 Pel que fa al desenvolupament, el quiz està programat en HTML i JavaScript. L’estructura es basa en un sistema de renderització dinàmica, on cada pregunta es genera a través de codi segons l’estat del progrés (pregunta actual, respostes, puntuació). 
 </p>
