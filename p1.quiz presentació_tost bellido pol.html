@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz - Pol Tost</title>
+</head>
+<body>
+
+<style>
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes popIn {
+  0% { transform: scale(0.85); opacity: 0; }
+  70% { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes barGrow { from { width: 0; } }
+@keyframes confettiFall {
+  0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(80px) rotate(360deg); opacity: 0; }
+}
+@keyframes hintPop {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.qwrap { padding: 1.5rem 0; max-width: 600px; margin: 0 auto; font-family: var(--font-sans); }
+.header-strip { border-radius: 16px; padding: 1.5rem 1.5rem 1rem; margin-bottom: 1.25rem; background: #EEEDFE; border: 0.5px solid #AFA9EC; animation: fadeSlideIn 0.4s ease both; }
+.header-strip h1 { margin: 0 0 2px; font-size: 21px; font-weight: 500; color: #26215C; }
+.header-strip p { margin: 0; font-size: 16px; color: #534AB7; }
+.prog-row { display: flex; align-items: center; gap: 10px; margin-bottom: 1.25rem; }
+.prog-bg { flex: 1; height: 8px; background: #CECBF6; border-radius: 99px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 99px; animation: barGrow 0.5s ease both; }
+.prog-label { font-size: 15px; color: #534AB7; font-weight: 500; min-width: 36px; text-align: right; }
+.qcard { border-radius: 16px; padding: 1.5rem; margin-bottom: 1rem; border: 0.5px solid; animation: fadeSlideIn 0.35s ease both; }
+.q-num { font-size: 14px; font-weight: 500; letter-spacing: 0.06em; margin: 0 0 6px; }
+.q-text { font-size: 21px; font-weight: 500; margin: 0 0 0.75rem; line-height: 1.5; }
+.hint-row { margin-bottom: 1rem; }
+.hint-btn { font-size: 15px; padding: 5px 12px; border-radius: 99px; border: 1px solid; cursor: pointer; background: transparent; font-family: var(--font-sans); transition: transform 0.1s; }
+.hint-btn:hover { transform: scale(1.04); }
+.hint-box { margin-top: 7px; border-radius: 8px; padding: 8px 12px; font-size: 16px; line-height: 1.5; animation: hintPop 0.25s ease both; display: none; }
+.opts { display: flex; flex-direction: column; gap: 8px; }
+.opt { border-radius: 10px; padding: 11px 14px; font-size: 17px; border: 1.5px solid; cursor: pointer; text-align: left; transition: transform 0.12s, border-color 0.15s; font-family: var(--font-sans); }
+.opt:hover { transform: translateX(4px); }
+.opt:active { transform: scale(0.98); }
+.opt.correct { animation: popIn 0.35s ease both; }
+.opt.wrong { animation: popIn 0.25s ease both; }
+.opt.disabled { pointer-events: none; cursor: default; }
+.feedback-box { margin-top: 12px; border-radius: 10px; padding: 10px 14px; font-size: 16px; line-height: 1.5; animation: fadeSlideIn 0.3s ease both; }
+.next-btn { margin-top: 1rem; padding: 11px 28px; border-radius: 10px; font-size: 17px; font-weight: 500; cursor: pointer; border: none; transition: transform 0.12s; display: none; font-family: var(--font-sans); }
+.next-btn:hover { transform: translateY(-2px); }
+.next-btn:active { transform: scale(0.97); }
+.result-wrap { animation: fadeSlideIn 0.5s ease both; }
+.result-hero { border-radius: 16px; padding: 2rem; text-align: center; margin-bottom: 1rem; background: #EEEDFE; border: 0.5px solid #AFA9EC; }
+.result-score { font-size: 56px; font-weight: 500; color: #534AB7; line-height: 1; margin: 0.5rem 0; animation: popIn 0.5s 0.2s ease both; opacity: 0; animation-fill-mode: both; }
+.result-title { font-size: 18px; font-weight: 500; color: #26215C; margin: 0.5rem 0 0; }
+.result-sub { font-size: 16px; color: #534AB7; margin: 0.5rem auto 1.5rem; line-height: 1.6; max-width: 380px; }
+.stats-row { display: flex; justify-content: center; gap: 1.5rem; margin: 1rem 0 1.5rem; }
+.stat { text-align: center; padding: 0.75rem 1.25rem; border-radius: 12px; }
+.stat-n { font-size: 26px; font-weight: 500; }
+.stat-l { font-size: 15px; margin-top: 2px; }
+.restart-btn { padding: 11px 28px; border-radius: 10px; font-size: 17px; font-weight: 500; cursor: pointer; border: none; font-family: var(--font-sans); background: #7F77DD; color: #fff; transition: transform 0.12s; }
+.restart-btn:hover { transform: translateY(-2px); }
+.confetti-piece { position: absolute; width: 8px; height: 8px; border-radius: 2px; animation: confettiFall 1s ease forwards; }
+.confetti-wrap { position: relative; height: 0; overflow: visible; }
+/* Transicions entre pantalles */
+.screen-enter {
+  animation: screenIn 0.45s ease forwards;
+}
+
+.screen-exit {
+  animation: screenOut 0.25s ease forwards;
+}
+
+@keyframes screenIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes screenOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+}</style>
+
+<div class="qwrap">
+  <h2 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Quiz interactiu: Conèixes al Pol?</h2>
+  <div id="qa"></div>
+</div>
+
+<script>
+const COLORS = [
+  { bg:'#EEEDFE', border:'#AFA9EC', text:'#26215C', btnBg:'#7F77DD', btnText:'#fff', qNum:'#534AB7', hintBg:'#CECBF6', hintText:'#3C3489' },
+  { bg:'#E1F5EE', border:'#5DCAA5', text:'#04342C', btnBg:'#1D9E75', btnText:'#fff', qNum:'#0F6E56', hintBg:'#9FE1CB', hintText:'#085041' },
+  { bg:'#FBEAF0', border:'#ED93B1', text:'#4B1528', btnBg:'#D4537E', btnText:'#fff', qNum:'#993556', hintBg:'#F4C0D1', hintText:'#72243E' },
+  { bg:'#FAEEDA', border:'#EF9F27', text:'#412402', btnBg:'#BA7517', btnText:'#fff', qNum:'#854F0B', hintBg:'#FAC775', hintText:'#633806' },
+  { bg:'#E6F1FB', border:'#85B7EB', text:'#042C53', btnBg:'#378ADD', btnText:'#fff', qNum:'#185FA5', hintBg:'#B5D4F4', hintText:'#0C447C' },
+  { bg:'#FAECE7', border:'#F0997B', text:'#4A1B0C', btnBg:'#D85A30', btnText:'#fff', qNum:'#993C1D', hintBg:'#F5C4B3', hintText:'#712B13' },
+  { bg:'#EAF3DE', border:'#97C459', text:'#173404', btnBg:'#639922', btnText:'#fff', qNum:'#3B6D11', hintBg:'#C0DD97', hintText:'#27500A' },
+];
+
+const qs = [
+  {
+    q: "Què estudio?",
+    hint: "Té a veure amb entendre com funcionen els pensaments, les emocions i el comportament humà.",
+    opts: ["Filosofia", "Psicologia", "Sociologia", "Història de l'Art"],
+    c: 1,
+    ok: "Correcte! Actualment estic cursant 4t del Grau en Psicologia, busco ajudar a trobar el benestar a través de la ment humana.",
+    ko: "No! Estic cursant 4t del Grau en Psicologia."
+  },
+  {
+    q: "Si tinc una tarda lliure, què és més probable que faci?",
+    hint: "M'agrada cultivar-me i aprendre a través de la cultura.",
+    opts: ["Veure un reality show", "Llegir un llibre o veure una pel·lícula", "Fer scroll a TikTok", "Anar de compres"],
+    c: 1,
+    ok: "Correcte! Gaudeixo culturitzarme: llibres, cinema i art. Encara que deixar les xarxes requereix esforç...",
+    ko: "Incorrecte! Prefereixo entretindre'm a través de llibres o pel·lícules. Ànima d'humanista!"
+  },
+  {
+    q: "Al tauler d'escacs, la meva estratègia...",
+    hint: "Sempre mirar endavant i pensar en el futur.",
+    opts: ["Improvisar i deixar que el joc avanci", "Pensar tres moviments per endavant", "Avorrir-me abans del escac i mat", "Jugo esperant tenir sort"],
+    c: 1,
+    ok: "Sí! La mentalitat d'avançar sempre encaixa perfectament amb l'estratègia.",
+    ko: "No! En aquest joc, pensar abans d'actuar és clau."
+  },
+  {
+    q: "Quin tipus d'esport practico?",
+    hint: "Combina disciplina mental i física, i té un fort component de respecte i superació personal.",
+    opts: ["Futbol sala els diumenges", "Natació competitiva", "Arts marcials", "Golf relaxat"],
+    c: 2,
+    ok: "Correcte! Practico arts marcials cos i ment en concentració.",
+    ko: "Ups! Practico arts marcials: respecte i mantenir el cos actiu."
+  },
+  {
+    q: "Quin seria el meu pla ideal per sopar?",
+    hint: "Valoro molt gaudir d'una experiència.",
+    opts: ["Un kebab ràpid de camí a casa", "Cuina de fusió amb bona decoració", "Un restaurant amb bon menjar i millor beguda", "Pizza congelada veient la tele"],
+    c: 2,
+    ok: "Exacte! Encara que un sopar a casa sempre es queda a prop.",
+    ko: "Casi! M'encanta gaudir d'un sopar especial amb bon menjar i beguda."
+  },
+  {
+    q: "Quina filosofia de vida segueixo?",
+    hint: "Els que m'envolten també compten molt per a mi.",
+    opts: ["Viure el moment sense pensar en el futur", "Buscar el millor per a mi i pels que m'envolten", "Prioritzar l'èxit professional per sobre de tot", "Evitar els problemes i no complicar-se la vida"],
+    c: 1,
+    ok: "Exacte! Tinc una mentalitat de millorar la qualitat de vida, sempre mirant endavant.",
+    ko: "Incorrecte! Busco el millor per a mi i els meus, sempre cap endavant."
+  },
+  {
+    q: "Si pogués escollir la meva vida ideal en el futur, quina triaria?",
+    hint: "No busco la fama ni la riquesa exagerada, vull un benestar profund i durador.",
+    opts: ["Fama internacional i vida agitada", "Una vida tranquil·la i completa", "Ser CEO d'una gran empresa", "Viatjar sense rumb fix "],
+    c: 1,
+    ok: "El meu somni! És una vida tranquil·la i completa, amb bona companyia.",
+    ko: "El meu somni és una vida tranquil·la i completa. Simple i lo més còmode possible."
+  }
+];
+
+let cur = 0, score = 0, answered = false;
+let screen = "start"; // "start" | "quiz" | "end"
+
+function col(i) { return COLORS[i % COLORS.length]; }
+function transitionTo(renderFn) {
+  const area = document.getElementById('qa');
+
+  // animació sortida
+  area.classList.add('screen-exit');
+
+  setTimeout(() => {
+    area.classList.remove('screen-exit');
+
+    renderFn();
+
+    // animació entrada
+    area.classList.add('screen-enter');
+
+    setTimeout(() => {
+      area.classList.remove('screen-enter');
+    }, 450);
+
+  }, 220);
+}
+function showStart(area) {
+  area.innerHTML = `
+    <div class="result-wrap">
+      <div class="result-hero">
+        <h1 style="margin-bottom:10px;color:#26215C">Quant conèixes al Pol?</h1>
+        <p class="result-sub">
+Aquest Quiz és una manera creativa que he pensat per presentar-me a mi mateix, Pol Tost Bellido estudiant del Grau en Psicologia, dins de la primera pràctica de l’assignatura d’Intel·ligència i Creativitat. En lloc de fer una presentació tradicional, he volgut crear una experiència interactiva en forma de quiz.
+
+La idea és que, a través de preguntes, es pugui descobrir qui sóc, què m’interessa i com penso, de manera dinàmica. Crec que la creativitat també està en la forma de comunicar, no només en el contingut.
+        </p>
+        <button class="restart-btn" onclick="startQuiz()">Començar →</button>
+      </div>
+    </div>
+  `;
+}
+
+function startQuiz() {
+  screen = "quiz";
+  transitionTo(render);
+}
+
+function spawnConfetti(container) {
+  const colors = ['#7F77DD','#1D9E75','#D4537E','#BA7517','#378ADD','#D85A30','#639922'];
+  for (let i = 0; i < 18; i++) {
+    const d = document.createElement('div');
+    d.className = 'confetti-piece';
+    d.style.cssText = `left:${10+Math.random()*80}%;background:${colors[Math.floor(Math.random()*colors.length)]};animation-delay:${Math.random()*0.4}s;animation-duration:${0.8+Math.random()*0.6}s`;
+    container.appendChild(d);
+  }
+}
+
+function toggleHint(hintBox, btn) {
+  const visible = hintBox.style.display === 'block';
+  hintBox.style.display = visible ? 'none' : 'block';
+  btn.textContent = visible ? 'Veure pista' : 'Amagar pista';
+}
+
+function render() {
+  const area = document.getElementById('qa');
+
+  if (screen === "start") {
+    showStart(area);
+    return;
+  }
+
+  if (cur >= qs.length) {
+    screen = "end";
+    showResult(area);
+    return;
+  }  const q = qs[cur];
+  const c = col(cur);
+  const pct = Math.round((cur / qs.length) * 100);
+  area.innerHTML = `
+    <div class="header-strip">
+      <h1>Quant conèixes al Pol?</h1>
+      <p>Un quiz sobre la seva vida, personalitat i passions</p>
+    </div>
+    <div class="prog-row">
+      <div class="prog-bg"><div class="prog-fill" style="width:${pct}%;background:${c.btnBg}"></div></div>
+      <span class="prog-label">${cur + 1}/${qs.length}</span>
+    </div>
+    <div class="qcard" style="background:${c.bg};border-color:${c.border}">
+      <p class="q-num" style="color:${c.qNum}">Pregunta ${cur + 1}</p>
+      <p class="q-text" style="color:${c.text}">${q.q}</p>
+      <div class="hint-row">
+        <button class="hint-btn" style="border-color:${c.border};color:${c.qNum}" onclick="toggleHint(document.getElementById('hintbox'),this)">Veure pista</button>
+        <div class="hint-box" id="hintbox" style="background:${c.hintBg};color:${c.hintText};display:none">${q.hint}</div>
+      </div>
+      <div class="opts" id="opts">
+        ${q.opts.map((o,i) => `<button class="opt" style="background:#fff;border-color:${c.border};color:${c.text}" onclick="choose(${i})">${o}</button>`).join('')}
+      </div>
+      <div id="fb"></div>
+    </div>
+    <button class="next-btn" id="nxt" style="background:${c.btnBg};color:${c.btnText}" onclick="next()">${cur === qs.length-1 ? 'Veure resultat' : 'Següent'} →</button>
+  `;
+  answered = false;
+}
+
+function choose(i) {
+  if (answered) return;
+  answered = true;
+  const q = qs[cur];
+  const btns = document.querySelectorAll('.opt');
+  btns.forEach(b => b.classList.add('disabled'));
+  if (i === q.c) {
+    score++;
+    btns[i].style.cssText = `background:#EAF3DE;border-color:#639922;color:#27500A;border-width:2px`;
+    btns[i].classList.add('correct');
+    document.getElementById('fb').innerHTML = `<div class="feedback-box" style="background:#EAF3DE;color:#27500A;border:0.5px solid #97C459">${q.ok}</div>`;
+  } else {
+    btns[i].style.cssText = `background:#FCEBEB;border-color:#A32D2D;color:#501313;border-width:2px`;
+    btns[i].classList.add('wrong');
+    btns[q.c].style.cssText = `background:#EAF3DE;border-color:#639922;color:#27500A;border-width:2px`;
+    btns[q.c].classList.add('correct');
+    document.getElementById('fb').innerHTML = `<div class="feedback-box" style="background:#FCEBEB;color:#501313;border:0.5px solid #F09595">${q.ko}</div>`;
+  }
+  document.getElementById('nxt').style.display = 'inline-block';
+}
+
+function next() {
+  cur++;
+  transitionTo(render);
+}
+function getResult(s) {
+  if (s === qs.length) return { t:"Ets el major fan d'en Pol!", m:"Puntuació perfecta. O ets en Pol mateix, o tens molt en comú. Impressionant." };
+  if (s >= 5) return { t:"Gran coneixedor d'en Pol", m:"Saps bastant sobre ell." };
+  if (s >= 3) return { t:"Alguna cosa et sona d'en Pol", m:"Tens algunes pistes, però encara hi ha misteri. Ara ja el coneixes una mica millor!" };
+  return { t:"El Pol és encara un misteri per a tu", m:"No passa res! Espero que aquest quiz t'hagi ajudat a conèixe'm millor." };
+}
+
+function showResult(area) {
+  const { t, m } = getResult(score);
+  const wrong = qs.length - score;
+  area.innerHTML = `
+    <div class="result-wrap">
+      <div class="confetti-wrap" id="confetti"></div>
+      <div class="result-hero">
+        <p style="font-size:12px;color:#534AB7;margin:0 0 4px;letter-spacing:0.05em">FINAL DEL QUIZ</p>
+        <div class="result-score">${score}/${qs.length}</div>
+        <p class="result-title">${t}</p>
+        <p class="result-sub">${m}</p>
+<p class="result-sub" style="margin-top:10px">
+Com a tancament, aquest projecte es pot entendre com una presentació personal estructurada en forma de quiz interactiu.
+
+El guió del test es construeix a partir de set preguntes, comença amb informació més bàsica (què estudio), i avança cap a aspectes més personals com els interessos, els hàbits, la manera de pensar i la visió de futur. Cada pregunta inclou quatre opcions de resposta, una pista que orienta sense revelar la solució i un feedback final. 
+
+Tant si la resposta és correcta com incorrecta. D’aquesta manera, el test no només avalua, sinó que també comunica informació de forma progressiva.
+
+Pel que fa al desenvolupament, el quiz està programat en HTML i JavaScript. L’estructura es basa en un sistema de renderització dinàmica, on cada pregunta es genera a través de codi segons l’estat del progrés (pregunta actual, respostes, puntuació). 
+</p>
+        <div class="stats-row">
+          <div class="stat" style="background:#EAF3DE">
+            <div class="stat-n" style="color:#3B6D11">${score}</div>
+            <div class="stat-l" style="color:#639922">correctes</div>
+          </div>
+          <div class="stat" style="background:#FCEBEB">
+            <div class="stat-n" style="color:#791F1F">${wrong}</div>
+            <div class="stat-l" style="color:#A32D2D">incorrectes</div>
+          </div>
+        </div>
+        <button class="restart-btn" onclick="restart()">Tornar a intentar-ho</button>
+      </div>
+    </div>
+  `;
+  if (score >= 1) spawnConfetti(document.getElementById('confetti'));
+}
+
+function restart() {
+  cur = 0;
+  score = 0;
+  answered = false;
+  screen = "start";
+  transitionTo(render);
+}
+render();
+</script>
+
+</body></html>
